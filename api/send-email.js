@@ -31,7 +31,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Setup transporter Gmail
+    // PERBAIKAN: createTransport BUKAN createTransporter
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
@@ -71,34 +71,6 @@ export default async function handler(req, res) {
       timestamp: new Date().toISOString()
     });
 
-    // Kirim notifikasi sukses ke Telegram (optional)
-    if (process.env.BOT_TOKEN && process.env.OWNER_ID) {
-      try {
-        const telegramMessage = 
-          `📧 *EMAIL BERHASIL DIKIRIM*\n\n` +
-          `📮 Kepada: ${to_email}\n` +
-          `📝 Subjek: ${subject}\n` +
-          `📱 Nomor: ${number}\n` +
-          `👤 User: ${username} (${user_id})\n` +
-          `🕒 Waktu: ${new Date().toLocaleString('id-ID')}\n` +
-          `🔧 Status: ✅ Success`;
-
-        await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            chat_id: process.env.OWNER_ID,
-            text: telegramMessage,
-            parse_mode: 'Markdown'
-          })
-        });
-      } catch (telegramError) {
-        console.log('⚠️ Gagal kirim notifikasi Telegram:', telegramError.message);
-      }
-    }
-
     // Response sukses
     return res.status(200).json({
       status: 'success',
@@ -113,34 +85,6 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('❌ Error mengirim email:', error);
-
-    // Kirim notifikasi error ke Telegram
-    if (process.env.BOT_TOKEN && process.env.OWNER_ID) {
-      try {
-        const errorMessage = 
-          `❌ *GAGAL KIRIM EMAIL*\n\n` +
-          `📮 Kepada: ${to_email}\n` +
-          `📝 Subjek: ${subject}\n` +
-          `📱 Nomor: ${number}\n` +
-          `👤 User: ${username} (${user_id})\n` +
-          `🕒 Waktu: ${new Date().toLocaleString('id-ID')}\n` +
-          `🔧 Error: ${error.message}`;
-
-        await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            chat_id: process.env.OWNER_ID,
-            text: errorMessage,
-            parse_mode: 'Markdown'
-          })
-        });
-      } catch (telegramError) {
-        console.log('⚠️ Gagal kirim notifikasi error Telegram:', telegramError.message);
-      }
-    }
 
     // Response error
     return res.status(500).json({
