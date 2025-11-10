@@ -32,7 +32,7 @@ export default async function handler(req, res) {
 
   try {
     // Setup transporter Gmail
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
       secure: false,
